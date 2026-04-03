@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------------------------------------------------------------------------- */
+/* BASE CONFIGURATION                                                         */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  font-family: var(--font-neue), sans-serif;
+}
+
+/* -------------------------------------------------------------------------- */
+/* LENIS SMOOTH SCROLL (From your previous setup)                             */
+/* -------------------------------------------------------------------------- */
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------------------------- */
+/* GSAP FLIP GALLERY LAYOUTS                                                  */
+/* -------------------------------------------------------------------------- */
+
+/* Base Gallery State */
+.gallery {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ----------------- LAYOUT 1: SCATTERED ----------------- */
+.gallery.layout-1-gallery {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform: translateX(0%);
+}
+
+.gallery.layout-1-gallery .gallery-img {
+  position: absolute;
+  width: 100px;
+  height: 125px;
+}
+
+/* Row 1 */
+.gallery.layout-1-gallery #img1,
+.gallery.layout-1-gallery #img2,
+.gallery.layout-1-gallery #img3,
+.gallery.layout-1-gallery #img4 {
+  top: 0%;
+}
+
+/* Row 2 */
+.gallery.layout-1-gallery #img5,
+.gallery.layout-1-gallery #img6,
+.gallery.layout-1-gallery #img7,
+.gallery.layout-1-gallery #img8 {
+  top: 25%;
+}
+
+/* Row 3 */
+.gallery.layout-1-gallery #img9,
+.gallery.layout-1-gallery #img10 {
+  top: 50%;
+}
+
+/* Row 4 */
+.gallery.layout-1-gallery #img11,
+.gallery.layout-1-gallery #img12,
+.gallery.layout-1-gallery #img13,
+.gallery.layout-1-gallery #img14 {
+  top: 75%;
+}
+
+/* Column X Coordinates */
+.gallery.layout-1-gallery #img1,
+.gallery.layout-1-gallery #img5,
+.gallery.layout-1-gallery #img11 {
+  left: 2em;
+}
+
+.gallery.layout-1-gallery #img2 {
+  left: 15%;
+}
+.gallery.layout-1-gallery #img6 {
+  left: 25%;
+}
+.gallery.layout-1-gallery #img3,
+.gallery.layout-1-gallery #img9 {
+  left: 45%;
+}
+
+.gallery.layout-1-gallery #img4,
+.gallery.layout-1-gallery #img10,
+.gallery.layout-1-gallery #img12 {
+  left: 65%;
+}
+
+.gallery.layout-1-gallery #img13 {
+  left: 75%;
+}
+.gallery.layout-1-gallery #img7 {
+  right: 15%;
+}
+
+.gallery.layout-1-gallery #img8,
+.gallery.layout-1-gallery #img14 {
+  right: 2em;
+}
+
+/* ----------------- LAYOUT 2: SIDEBAR STACK ----------------- */
+.gallery.layout-2-gallery {
+  padding-top: 0.5em;
+  position: absolute; /* Changed from fixed to absolute for scrolling context */
+  top: 0;
+  left: 10%;
+  transform: translateX(0%);
+  display: flex;
+  flex-direction: column;
+}
+
+.gallery.layout-2-gallery .gallery-img {
+  position: relative;
+  width: 75px;
+  height: 100px;
+  margin-bottom: 1em;
+}
+
+/* ----------------- LAYOUT 3: FOCUSED CORNER ----------------- */
+.gallery.layout-3-gallery {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform: translateX(0%);
+}
+
+.gallery.layout-3-gallery .gallery-img {
+  position: absolute;
+  top: 4em;
+  right: 4em;
+  width: 300px;
+  height: 400px;
+}
