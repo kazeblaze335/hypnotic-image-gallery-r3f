@@ -4,26 +4,26 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { Flip } from "gsap/Flip";
-import { CustomEase } from "gsap/CustomEase";
+// Using the /dist/ path to avoid TypeScript casing errors
+import { Flip } from "gsap/dist/Flip";
+import { CustomEase } from "gsap/dist/CustomEase";
 
-// Register GSAP Plugins
 gsap.registerPlugin(Flip, CustomEase);
 
-// Generate array of 14 images based on your asset paths
 const images = Array.from(
   { length: 14 },
-  (_, i) => `/assets/images/img${i + 1}.jpg`,
+  (_, i) => `/assets/images/image_${String(i + 1).padStart(3, "0")}.webp`,
 );
 
 export default function FlipGallery() {
   const containerRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
+  const flipStateRef = useRef<Flip.FlipState | null>(null);
 
-  // Track our current layout mode
   const [activeLayout, setActiveLayout] = useState("layout-1-gallery");
+  // NEW: State to manage the dropdown menu
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // 1. Initialize our custom "hop" ease once
   useGSAP(
     () => {
       CustomEase.create(
@@ -34,34 +34,27 @@ export default function FlipGallery() {
     { scope: containerRef },
   );
 
-  // 2. The Flip Magic
+  const handleLayoutChange = (layout: string) => {
+    if (layout === activeLayout) return;
+    flipStateRef.current = Flip.getState(".gallery-img");
+    setActiveLayout(layout);
+  };
+
   useGSAP(
     () => {
-      if (!galleryRef.current) return;
+      if (!galleryRef.current || !flipStateRef.current) return;
 
-      // Grab all our image wrappers
-      const items = gsap.utils.toArray(".gallery-img") as HTMLElement[];
+      let staggerValue = activeLayout === "layout-2-gallery" ? 0 : 0.025;
 
-      // Capture the current positions BEFORE the layout class changes them
-      const state = Flip.getState(items);
-
-      // Because this hook runs *after* activeLayout changes and React re-renders,
-      // the DOM elements are now in their new layout positions.
-      // We tell Flip to animate them FROM their old saved state to their new current state.
-
-      let staggerValue = 0.025;
-      // Remove stagger if moving TO layout 2 (based on your original script logic)
-      if (activeLayout === "layout-2-gallery") {
-        staggerValue = 0;
-      }
-
-      Flip.from(state, {
+      Flip.from(flipStateRef.current, {
         duration: 1.5,
         ease: "hop",
         stagger: staggerValue,
-        absolute: true, // Required so they don't jump around during the transition
+        absolute: true,
         scale: true,
       });
+
+      flipStateRef.current = null;
     },
     { dependencies: [activeLayout], scope: containerRef },
   );
@@ -69,23 +62,24 @@ export default function FlipGallery() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full min-h-screen pt-24 bg-zinc-100 dark:bg-zinc-950 transition-colors duration-500"
+      className="absolute inset-0 w-full h-full z-10 pointer-events-none"
     >
-      {/* Navigation (Mimicking your HTML Nav) */}
-      <nav className="absolute top-0 left-0 w-full p-6 flex justify-between z-50 text-zinc-900 dark:text-zinc-100 mix-blend-difference">
-        <div className="uppercase text-sm font-bold tracking-widest">
+      {/* Navigation Layer - Rich Black, Monospace */}
+      <nav className="fixed top-0 left-0 w-full p-8 flex justify-between z-[100] text-[#0a0a0a] dark:text-zinc-100 font-mono pointer-events-none">
+        <div className="uppercase text-sm font-bold tracking-widest pointer-events-auto">
           Codegrid
         </div>
-        <div className="flex space-x-12">
+
+        <div className="flex space-x-12 pointer-events-auto">
           {["layout-1-gallery", "layout-2-gallery", "layout-3-gallery"].map(
             (layout, i) => (
               <button
                 key={layout}
-                onClick={() => setActiveLayout(layout)}
-                className={`uppercase text-sm font-bold tracking-widest transition-opacity duration-300 ${
+                onClick={() => handleLayoutChange(layout)}
+                className={`uppercase text-sm font-bold tracking-widest transition-opacity duration-300 hover:opacity-80 ${
                   activeLayout === layout
                     ? "opacity-100 underline underline-offset-4"
-                    : "opacity-40 hover:opacity-80"
+                    : "opacity-40"
                 }`}
               >
                 0{i + 1}
@@ -93,19 +87,59 @@ export default function FlipGallery() {
             ),
           )}
         </div>
-        <div className="uppercase text-sm font-bold tracking-widest">Menu</div>
+
+        {/* NEW: Interactive Boutique Menu */}
+        <div className="relative pointer-events-auto">
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="uppercase text-sm font-bold tracking-widest hover:opacity-80 transition-opacity"
+          >
+            {isMenuOpen ? "Close" : "Menu"}
+          </button>
+
+          {/* The Dropdown Container */}
+          <div
+            className={`absolute top-full right-0 mt-6 w-48 bg-[#0a0a0a] dark:bg-white text-white dark:text-[#0a0a0a] p-6 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] ${
+              isMenuOpen
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 -translate-y-4 pointer-events-none"
+            }`}
+          >
+            <ul className="flex flex-col space-y-4 text-xs tracking-widest uppercase">
+              <li>
+                <a href="#" className="hover:opacity-60 transition-opacity">
+                  Works
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:opacity-60 transition-opacity">
+                  Studio
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:opacity-60 transition-opacity">
+                  Journal
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:opacity-60 transition-opacity">
+                  Contact
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </nav>
 
       {/* Gallery Layout Container */}
-      <div className="w-full h-full relative">
+      <div className="w-full h-full relative pointer-events-auto pt-24">
         <div
           ref={galleryRef}
-          className={`gallery ${activeLayout} w-full h-[80vh]`}
+          className={`gallery ${activeLayout} w-full h-full`}
         >
           {images.map((src, index) => (
             <div
               key={src}
-              // We pass the index ID to match your CSS coordinates (e.g., #img1, #img2)
               id={`img${index + 1}`}
               className="gallery-img relative overflow-hidden will-change-transform rounded-sm shadow-xl"
             >

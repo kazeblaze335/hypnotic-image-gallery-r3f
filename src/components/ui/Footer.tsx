@@ -4,7 +4,7 @@ import localFont from "next/font/local";
 import Link from "next/link";
 
 const neueMontreal = localFont({
-  src: "../../../public/fonts/PPNeueMontreal-Bold.otf",
+  src: "../../../public/assets/fonts/PPNeueMontreal-Bold.otf",
   variable: "--font-neue",
 });
 

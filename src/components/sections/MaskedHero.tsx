@@ -14,15 +14,13 @@ export default function MaskedHero() {
 
   useGSAP(
     () => {
-      // Hardware-accelerated parallax using force3D
-      // We scale the image slightly larger than the container so it has room to pan
       gsap.fromTo(
         imageRef.current,
         { yPercent: -15 },
         {
           yPercent: 15,
           ease: "none",
-          force3D: true, // Forces GPU layer rendering
+          force3D: true,
           scrollTrigger: {
             trigger: containerRef.current,
             start: "top bottom",
@@ -38,41 +36,54 @@ export default function MaskedHero() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-zinc-100 dark:bg-zinc-950"
+      className="absolute inset-0 w-full h-full overflow-hidden flex items-center justify-center z-0 pointer-events-none"
     >
-      {/* 1. The Parallax Image Background */}
-      {/* We make it 120% height to ensure it doesn't show edges during the parallax scroll */}
-      <div
-        ref={imageRef}
-        className="absolute w-full h-[120%] will-change-transform"
+      {/* ADDED overflow="visible" to prevent harsh edge clipping */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        overflow="visible"
       >
-        <Image
-          // Assuming you moved the assets folder into Next's public directory: /public/assets/
-          src="/assets/images/img4.jpg"
-          alt="Wide Fashion Mask"
-          fill
-          priority
-          className="object-cover"
-        />
-      </div>
+        <defs>
+          <clipPath id="text-mask">
+            <text
+              x="50%"
+              y="50%"
+              dominantBaseline="middle"
+              textAnchor="middle"
+              className="font-black tracking-tighter"
+              // REDUCED from 28vw to 22vw so the word fits on screen safely
+              style={{ fontSize: "clamp(6rem, 22vw, 30rem)" }}
+            >
+              WIDE
+            </text>
+          </clipPath>
+        </defs>
+      </svg>
 
-      {/* 2. The Text Knockout Layer */}
-      {/* LIGHT MODE: bg-zinc-100 with mix-blend-screen. White blocks the image, black text becomes transparent.
-        DARK MODE: bg-zinc-950 with mix-blend-multiply. Black blocks the image, white text becomes transparent.
-      */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-zinc-100 text-black mix-blend-screen dark:bg-zinc-950 dark:text-white dark:mix-blend-multiply transition-colors duration-500">
-        <h1
-          className="font-black leading-[0.75] tracking-tighter text-center"
-          style={{ fontSize: "clamp(8rem, 28vw, 30rem)" }}
+      <div
+        className="absolute inset-0 w-full h-full"
+        style={{
+          clipPath: "url(#text-mask)",
+          WebkitClipPath: "url(#text-mask)",
+        }}
+      >
+        <div
+          ref={imageRef}
+          className="absolute w-full h-[130%] -top-[15%] will-change-transform"
         >
-          WIDE
-        </h1>
-
-        {/* Optional Subtitle to match the agency feel */}
-        <p className="mt-8 text-sm md:text-lg font-medium tracking-[0.3em] uppercase">
-          A Hypnotic Exploration
-        </p>
+          <Image
+            src="/assets/images/image_004.webp"
+            alt="Wide Fashion Mask"
+            fill
+            priority
+            className="object-cover"
+          />
+        </div>
       </div>
+
+      <p className="absolute bottom-12 text-sm md:text-lg font-medium tracking-[0.3em] uppercase text-[#0a0a0a] dark:text-zinc-100">
+        A Hypnotic Exploration
+      </p>
     </section>
   );
 }

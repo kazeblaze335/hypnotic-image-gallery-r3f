@@ -9,7 +9,7 @@ import GlobalCanvas from "@/components/webgl/GlobalCanvas";
 
 // Loading PP Neue Montreal as per the HTML reference
 const neueMontreal = localFont({
-  src: "../../public/fonts/PPNeueMontreal-Bold.otf",
+  src: "../../public/assets/fonts/PPNeueMontreal-Bold.otf",
   variable: "--font-neue",
   display: "swap",
 });

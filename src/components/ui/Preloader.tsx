@@ -8,7 +8,7 @@ import localFont from "next/font/local";
 
 // 1. THE FIX: Import the monumental studio font
 const neueMontreal = localFont({
-  src: "../../../public/fonts/PPNeueMontreal-Bold.otf",
+  src: "../../../public/assets/fonts/PPNeueMontreal-Bold.otf",
   variable: "--font-neue",
 });
 
