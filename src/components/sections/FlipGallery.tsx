@@ -4,7 +4,6 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-// Using the /dist/ path to avoid TypeScript casing errors
 import { Flip } from "gsap/dist/Flip";
 import { CustomEase } from "gsap/dist/CustomEase";
 
@@ -15,13 +14,18 @@ const images = Array.from(
   (_, i) => `/assets/images/image_${String(i + 1).padStart(3, "0")}.webp`,
 );
 
-export default function FlipGallery() {
+interface FlipGalleryProps {
+  activeLayout: string;
+  setActiveLayout: (layout: string) => void;
+}
+
+export default function FlipGallery({
+  activeLayout,
+  setActiveLayout,
+}: FlipGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const flipStateRef = useRef<Flip.FlipState | null>(null);
-
-  const [activeLayout, setActiveLayout] = useState("layout-1-gallery");
-  // NEW: State to manage the dropdown menu
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useGSAP(
@@ -38,100 +42,70 @@ export default function FlipGallery() {
     if (layout === activeLayout) return;
     flipStateRef.current = Flip.getState(".gallery-img");
     setActiveLayout(layout);
+    setIsMenuOpen(false); // Auto-close menu
   };
 
-  useGSAP(
-    () => {
-      if (!galleryRef.current || !flipStateRef.current) return;
-
-      let staggerValue = activeLayout === "layout-2-gallery" ? 0 : 0.025;
-
-      Flip.from(flipStateRef.current, {
-        duration: 1.5,
-        ease: "hop",
-        stagger: staggerValue,
-        absolute: true,
-        scale: true,
-      });
-
-      flipStateRef.current = null;
-    },
-    { dependencies: [activeLayout], scope: containerRef },
-  );
+  useGSAP(() => {
+    if (!galleryRef.current || !flipStateRef.current) return;
+    let staggerValue = activeLayout === "layout-2-gallery" ? 0 : 0.025;
+    Flip.from(flipStateRef.current, {
+      duration: 1.5,
+      ease: "hop",
+      stagger: staggerValue,
+      absolute: true,
+      scale: true,
+    });
+    flipStateRef.current = null;
+  }, [activeLayout]);
 
   return (
     <div
       ref={containerRef}
       className="absolute inset-0 w-full h-full z-10 pointer-events-none"
     >
-      {/* Navigation Layer - Rich Black, Monospace */}
-      <nav className="fixed top-0 left-0 w-full p-8 flex justify-between z-[100] text-[#0a0a0a] dark:text-zinc-100 font-mono pointer-events-none">
-        <div className="uppercase text-sm font-bold tracking-widest pointer-events-auto">
-          Codegrid
-        </div>
+      {/* Centered Boutique Menu */}
+      <nav className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center font-sans pointer-events-none">
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="pointer-events-auto bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-3 rounded-full uppercase text-[10px] font-bold tracking-[0.3em] hover:bg-white/20 transition-all duration-300 shadow-[0_0_20px_rgba(0,0,0,0.2)]"
+        >
+          {isMenuOpen ? "Close" : "Menu"}
+        </button>
 
-        <div className="flex space-x-12 pointer-events-auto">
-          {["layout-1-gallery", "layout-2-gallery", "layout-3-gallery"].map(
-            (layout, i) => (
-              <button
-                key={layout}
-                onClick={() => handleLayoutChange(layout)}
-                className={`uppercase text-sm font-bold tracking-widest transition-opacity duration-300 hover:opacity-80 ${
-                  activeLayout === layout
-                    ? "opacity-100 underline underline-offset-4"
-                    : "opacity-40"
-                }`}
-              >
-                0{i + 1}
-              </button>
-            ),
-          )}
-        </div>
+        <div
+          className={`pointer-events-auto mt-4 w-64 bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] ${isMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}`}
+        >
+          <div className="flex flex-col space-y-6 text-[10px] font-bold tracking-[0.3em] uppercase text-white text-center">
+            <div className="text-white/40 pb-4 border-b border-white/10">
+              Views
+            </div>
 
-        {/* NEW: Interactive Boutique Menu */}
-        <div className="relative pointer-events-auto">
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="uppercase text-sm font-bold tracking-widest hover:opacity-80 transition-opacity"
-          >
-            {isMenuOpen ? "Close" : "Menu"}
-          </button>
+            {["layout-1-gallery", "layout-2-gallery", "layout-3-gallery"].map(
+              (layout, i) => (
+                <button
+                  key={layout}
+                  onClick={() => handleLayoutChange(layout)}
+                  className={`transition-all duration-300 hover:opacity-100 ${activeLayout === layout ? "opacity-100 text-[#CCFF00]" : "opacity-40"}`}
+                >
+                  Layout 0{i + 1}
+                </button>
+              ),
+            )}
 
-          {/* The Dropdown Container */}
-          <div
-            className={`absolute top-full right-0 mt-6 w-48 bg-[#0a0a0a] dark:bg-white text-white dark:text-[#0a0a0a] p-6 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] ${
-              isMenuOpen
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 -translate-y-4 pointer-events-none"
-            }`}
-          >
-            <ul className="flex flex-col space-y-4 text-xs tracking-widest uppercase">
-              <li>
-                <a href="#" className="hover:opacity-60 transition-opacity">
-                  Works
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:opacity-60 transition-opacity">
-                  Studio
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:opacity-60 transition-opacity">
-                  Journal
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:opacity-60 transition-opacity">
-                  Contact
-                </a>
-              </li>
-            </ul>
+            <div className="text-white/40 pt-4 pb-4 border-b border-t border-white/10 mt-4">
+              Studio
+            </div>
+            <a href="#" className="hover:opacity-60 transition-opacity">
+              Journal
+            </a>
+            <a href="#" className="hover:opacity-60 transition-opacity">
+              Contact
+            </a>
           </div>
         </div>
       </nav>
 
-      {/* Gallery Layout Container */}
+      {/* Gallery Grid */}
       <div className="w-full h-full relative pointer-events-auto pt-24">
         <div
           ref={galleryRef}
@@ -141,11 +115,11 @@ export default function FlipGallery() {
             <div
               key={src}
               id={`img${index + 1}`}
-              className="gallery-img relative overflow-hidden will-change-transform rounded-sm shadow-xl"
+              className="gallery-img relative overflow-hidden will-change-transform rounded-sm shadow-2xl"
             >
               <Image
                 src={src}
-                alt={`Gallery Image ${index + 1}`}
+                alt={`Image ${index + 1}`}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"

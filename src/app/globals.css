@@ -142,19 +142,21 @@ html.lenis body {
   right: 2em;
 }
 
-/* ----------------- LAYOUT 2: SIDEBAR STACK ----------------- */
+/* ----------------- LAYOUT 2: SIDEBAR STACK / WRAP ----------------- */
 .gallery.layout-2-gallery {
   position: absolute;
-  top: 20%;
-  left: 10%;
-  /* Switch to flex column wrap so it cascades to the right */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 1rem;
-  /* Constrain height to force the wrap into multiple columns */
-  height: 60vh;
+  align-content: center;
+  justify-content: center;
+  gap: 1.5rem;
+  /* Constrain height to force the images into multiple vertical columns */
+  height: 70vh;
+  width: 90vw;
 }
 
 .gallery.layout-2-gallery .gallery-img {
@@ -162,9 +164,8 @@ html.lenis body {
   left: 0 !important;
   top: 0 !important;
   right: auto !important;
-  width: 75px !important;
-  height: 100px !important;
-  /* Removed margin-bottom since we are using gap now */
+  width: 85px !important;
+  height: 115px !important;
   margin-bottom: 0 !important;
   display: block;
 }
@@ -183,4 +184,35 @@ html.lenis body {
   right: 4em;
   width: 300px;
   height: 400px;
+}
+
+/* ----------------- LAYOUT 2: VERTICAL WRAP (SHIFTED RIGHT) ----------------- */
+.gallery.layout-2-gallery {
+  position: absolute;
+  top: 50%;
+  /* Shifted from center to the right 60% mark to balance the left-aligned text */
+  left: 65%;
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 1.5vw;
+
+  /* Constrain height to force the 14 images into columns */
+  height: 80vh;
+  width: 50vw;
+}
+
+.gallery.layout-2-gallery .gallery-img {
+  position: relative !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: auto !important;
+  width: 85px !important;
+  height: 115px !important;
+  margin-bottom: 0 !important;
+  display: block;
 }
