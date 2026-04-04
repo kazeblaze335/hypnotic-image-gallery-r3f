@@ -1,49 +1,46 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { CustomEase } from "gsap/dist/CustomEase";
+import { useStore } from "@/store/useStore";
+import HardwareParallax from "@/components/motion/HardwareParallax";
 
 gsap.registerPlugin(CustomEase);
 
-export default function MaskedHero({ activeLayout }: { activeLayout: string }) {
+export default function MaskedHero() {
   const containerRef = useRef<HTMLElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
 
-  // 1. Setup the Mouse Parallax (Since we have no scrolling anymore)
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 15; // Pan range
-      const y = (e.clientY / window.innerHeight - 0.5) * 15;
+  // Connect to Zustand Store
+  const activeLayout = useStore((state) => state.activeLayout);
 
-      gsap.to(imageRef.current, {
-        xPercent: x,
-        yPercent: y,
-        duration: 1.5,
-        ease: "power2.out",
-        force3D: true,
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  // 2. Animate the SVG Letters based on the layout state
   useGSAP(() => {
     CustomEase.create(
       "hop",
       "M0,0 C0.028,0.528 0.129,0.74 0.27,0.852 0.415,0.967 0.499,1 1,1",
     );
     const isVertical = activeLayout === "layout-2-gallery";
+    const isSlider = activeLayout === "layout-3-gallery";
 
-    // Define target coordinates for each letter
     const targets = [
-      { x: isVertical ? "15%" : "22%", y: isVertical ? "20%" : "50%" }, // W
-      { x: isVertical ? "15%" : "42%", y: isVertical ? "40%" : "50%" }, // I
-      { x: isVertical ? "15%" : "58%", y: isVertical ? "60%" : "50%" }, // D
-      { x: isVertical ? "15%" : "78%", y: isVertical ? "80%" : "50%" }, // E
+      {
+        x: isVertical ? "15%" : isSlider ? "35%" : "22%",
+        y: isVertical ? "20%" : isSlider ? "15%" : "50%",
+      }, // W
+      {
+        x: isVertical ? "15%" : isSlider ? "45%" : "42%",
+        y: isVertical ? "40%" : isSlider ? "15%" : "50%",
+      }, // I
+      {
+        x: isVertical ? "15%" : isSlider ? "55%" : "58%",
+        y: isVertical ? "60%" : isSlider ? "15%" : "50%",
+      }, // D
+      {
+        x: isVertical ? "15%" : isSlider ? "65%" : "78%",
+        y: isVertical ? "80%" : isSlider ? "15%" : "50%",
+      }, // E
     ];
 
     const letters = gsap.utils.toArray(".mask-letter");
@@ -51,13 +48,14 @@ export default function MaskedHero({ activeLayout }: { activeLayout: string }) {
     letters.forEach((letter: any, i) => {
       gsap.to(letter, {
         attr: { x: targets[i].x, y: targets[i].y },
-        // Shrink the font size slightly when vertically stacked
         fontSize: isVertical
           ? "clamp(4rem, 10vw, 15rem)"
-          : "clamp(6rem, 22vw, 30rem)",
+          : isSlider
+            ? "clamp(2rem, 6vw, 8rem)"
+            : "clamp(6rem, 22vw, 30rem)",
         duration: 1.5,
         ease: "hop",
-        delay: isVertical ? i * 0.05 : 0, // Slight stagger effect
+        delay: isVertical ? i * 0.05 : 0,
       });
     });
   }, [activeLayout]);
@@ -73,7 +71,6 @@ export default function MaskedHero({ activeLayout }: { activeLayout: string }) {
       >
         <defs>
           <clipPath id="text-mask">
-            {/* Split letters so they can be independently animated */}
             <text
               className="mask-letter font-black tracking-tighter"
               dy=".35em"
@@ -121,18 +118,19 @@ export default function MaskedHero({ activeLayout }: { activeLayout: string }) {
           WebkitClipPath: "url(#text-mask)",
         }}
       >
-        <div
-          ref={imageRef}
-          className="absolute w-[110%] h-[110%] -top-[5%] -left-[5%] will-change-transform"
+        {/* Implement Reusable Hardware Parallax */}
+        <HardwareParallax
+          multiplier={15}
+          className="absolute w-[110%] h-[110%] -top-[5%] -left-[5%]"
         >
           <Image
-            src="/assets/images/image_014.webp"
+            src="/assets/images/image_004.webp"
             alt="Wide Mask"
             fill
             priority
             className="object-cover"
           />
-        </div>
+        </HardwareParallax>
       </div>
     </section>
   );

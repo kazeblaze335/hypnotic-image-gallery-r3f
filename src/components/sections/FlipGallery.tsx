@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { Flip } from "gsap/dist/Flip";
 import { CustomEase } from "gsap/dist/CustomEase";
+import { useStore } from "@/store/useStore";
 
 gsap.registerPlugin(Flip, CustomEase);
 
@@ -14,19 +15,13 @@ const images = Array.from(
   (_, i) => `/assets/images/image_${String(i + 1).padStart(3, "0")}.webp`,
 );
 
-interface FlipGalleryProps {
-  activeLayout: string;
-  setActiveLayout: (layout: string) => void;
-}
-
-export default function FlipGallery({
-  activeLayout,
-  setActiveLayout,
-}: FlipGalleryProps) {
+export default function FlipGallery() {
   const containerRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const flipStateRef = useRef<Flip.FlipState | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Connect to Zustand Store
+  const { activeLayout, setActiveLayout } = useStore();
 
   useGSAP(
     () => {
@@ -42,12 +37,13 @@ export default function FlipGallery({
     if (layout === activeLayout) return;
     flipStateRef.current = Flip.getState(".gallery-img");
     setActiveLayout(layout);
-    setIsMenuOpen(false); // Auto-close menu
   };
 
   useGSAP(() => {
     if (!galleryRef.current || !flipStateRef.current) return;
+
     let staggerValue = activeLayout === "layout-2-gallery" ? 0 : 0.025;
+
     Flip.from(flipStateRef.current, {
       duration: 1.5,
       ease: "hop",
@@ -55,7 +51,15 @@ export default function FlipGallery({
       absolute: true,
       scale: true,
     });
+
     flipStateRef.current = null;
+
+    // Fade out DOM images if Layout 3 (WebGL Slider) is active
+    gsap.to(".gallery-img", {
+      opacity: activeLayout === "layout-3-gallery" ? 0 : 1,
+      duration: 0.5,
+      ease: "power2.inOut",
+    });
   }, [activeLayout]);
 
   return (
@@ -63,49 +67,24 @@ export default function FlipGallery({
       ref={containerRef}
       className="absolute inset-0 w-full h-full z-10 pointer-events-none"
     >
-      {/* Centered Boutique Menu */}
-      <nav className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center font-sans pointer-events-none">
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="pointer-events-auto bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-3 rounded-full uppercase text-[10px] font-bold tracking-[0.3em] hover:bg-white/20 transition-all duration-300 shadow-[0_0_20px_rgba(0,0,0,0.2)]"
-        >
-          {isMenuOpen ? "Close" : "Menu"}
-        </button>
-
-        <div
-          className={`pointer-events-auto mt-4 w-64 bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] ${isMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}`}
-        >
-          <div className="flex flex-col space-y-6 text-[10px] font-bold tracking-[0.3em] uppercase text-white text-center">
-            <div className="text-white/40 pb-4 border-b border-white/10">
-              Views
-            </div>
-
-            {["layout-1-gallery", "layout-2-gallery", "layout-3-gallery"].map(
-              (layout, i) => (
-                <button
-                  key={layout}
-                  onClick={() => handleLayoutChange(layout)}
-                  className={`transition-all duration-300 hover:opacity-100 ${activeLayout === layout ? "opacity-100 text-[#CCFF00]" : "opacity-40"}`}
-                >
-                  Layout 0{i + 1}
-                </button>
-              ),
-            )}
-
-            <div className="text-white/40 pt-4 pb-4 border-b border-t border-white/10 mt-4">
-              Studio
-            </div>
-            <a href="#" className="hover:opacity-60 transition-opacity">
-              Journal
-            </a>
-            <a href="#" className="hover:opacity-60 transition-opacity">
-              Contact
-            </a>
-          </div>
-        </div>
+      <nav className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] flex space-x-8 md:space-x-16 font-sans mix-blend-difference pointer-events-none">
+        {["layout-1-gallery", "layout-2-gallery", "layout-3-gallery"].map(
+          (layout, i) => (
+            <button
+              key={layout}
+              onClick={() => handleLayoutChange(layout)}
+              className={`pointer-events-auto uppercase text-[10px] md:text-xs font-bold tracking-[0.3em] transition-all duration-300 ${
+                activeLayout === layout
+                  ? "text-white opacity-100 underline underline-offset-8 decoration-2"
+                  : "text-white opacity-50 hover:opacity-100"
+              }`}
+            >
+              Layout {i + 1}
+            </button>
+          ),
+        )}
       </nav>
 
-      {/* Gallery Grid */}
       <div className="w-full h-full relative pointer-events-auto pt-24">
         <div
           ref={galleryRef}
@@ -119,7 +98,7 @@ export default function FlipGallery({
             >
               <Image
                 src={src}
-                alt={`Image ${index + 1}`}
+                alt={`Gallery Image ${index + 1}`}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"

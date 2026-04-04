@@ -1,53 +1,45 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
 
 interface HardwareParallaxProps {
   children: React.ReactNode;
-  speed?: number; // e.g., 0.1 for subtle, 0.3 for intense
+  multiplier?: number;
   className?: string;
-  isPaused?: boolean; // We use this to pause math during page transitions
 }
 
 export default function HardwareParallax({
   children,
-  speed = 0.15,
+  multiplier = 15,
   className = "",
-  isPaused = false,
 }: HardwareParallaxProps) {
-  const ref = useRef<HTMLDivElement>(null);
+  const targetRef = useRef<HTMLDivElement>(null);
 
-  // useScroll natively tracks when this specific element enters/exits the viewport
-  // This is highly optimized using native Intersection Observers under the hood
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!targetRef.current) return;
 
-  // Map the intersection progress (0 to 1) to a percentage offset for the parallax
-  // If speed is 0.15, the image will travel from -15% to +15% on the Y axis
-  const yOffset = speed * 100;
-  const rawY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    [`-${yOffset}%`, `${yOffset}%`],
-  );
+      // Calculate pan coordinates based on mouse position relative to the center
+      const x = (e.clientX / window.innerWidth - 0.5) * multiplier;
+      const y = (e.clientY / window.innerHeight - 0.5) * multiplier;
 
-  // If the page is animating/transitioning, we freeze the parallax to save GPU power
-  const y = isPaused ? "0%" : rawY;
+      gsap.to(targetRef.current, {
+        xPercent: x,
+        yPercent: y,
+        duration: 1.5,
+        ease: "power2.out",
+        force3D: true, // Forces GPU acceleration
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [multiplier]);
 
   return (
-    <div ref={ref} className={`relative overflow-hidden ${className}`}>
-      <motion.div
-        style={{ y }}
-        // 1. transform-gpu forces hardware acceleration
-        // 2. will-change-transform tells the browser to prep the GPU
-        // 3. scale-[1.15] gives the image extra height so it can slide without showing gaps
-        className="absolute inset-0 w-full h-full scale-[1.15] transform-gpu will-change-transform origin-center"
-      >
-        {children}
-      </motion.div>
+    <div ref={targetRef} className={`will-change-transform ${className}`}>
+      {children}
     </div>
   );
 }
