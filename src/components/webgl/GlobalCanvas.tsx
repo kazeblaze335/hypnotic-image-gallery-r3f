@@ -1,17 +1,24 @@
 "use client";
-
 import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
-import FogSlider from "./FogSlider";
+import UnifiedScene from "./UnifiedScene";
 
 export default function GlobalCanvas() {
   return (
-    <div className="fixed inset-0 w-full h-full z-0 pointer-events-none">
-      <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-        <Suspense fallback={null}>
-          {/* FogSlider will read directly from Zustand */}
-          <FogSlider />
-        </Suspense>
+    // The wrapper MUST be absolute inset-0
+    <div className="absolute inset-0 w-full h-full">
+      <Canvas
+        gl={{ alpha: true, antialias: true }} // alpha: true allows the DOM sandwich to work!
+        camera={{ position: [0, 0, 5], fov: 45 }}
+        style={{
+          width: "100vw",
+          height: "100vh",
+          background: "transparent",
+          position: "absolute",
+          top: 0,
+          left: 0,
+        }}
+      >
+        <UnifiedScene />
       </Canvas>
     </div>
   );

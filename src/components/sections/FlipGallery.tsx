@@ -4,12 +4,14 @@ import { useRef } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+// Importing from /dist/ prevents TypeScript casing errors on Mac/Windows
 import { Flip } from "gsap/dist/Flip";
 import { CustomEase } from "gsap/dist/CustomEase";
 import { useStore } from "@/store/useStore";
 
 gsap.registerPlugin(Flip, CustomEase);
 
+// Sync to 14 images to perfectly match the WebGL slider
 const images = Array.from(
   { length: 14 },
   (_, i) => `/assets/images/image_${String(i + 1).padStart(3, "0")}.webp`,
@@ -20,9 +22,11 @@ export default function FlipGallery() {
   const galleryRef = useRef<HTMLDivElement>(null);
   const flipStateRef = useRef<Flip.FlipState | null>(null);
 
-  // Connect to Zustand Store
-  const { activeLayout, setActiveLayout } = useStore();
+  // Connect directly to Zustand Store
+  const activeLayout = useStore((state) => state.activeLayout);
+  const setActiveLayout = useStore((state) => state.setActiveLayout);
 
+  // 1. Initialize Custom Easing
   useGSAP(
     () => {
       CustomEase.create(
@@ -33,40 +37,59 @@ export default function FlipGallery() {
     { scope: containerRef },
   );
 
+  // 2. The Flip Handler: Capture state BEFORE updating React/Zustand state
   const handleLayoutChange = (layout: string) => {
     if (layout === activeLayout) return;
     flipStateRef.current = Flip.getState(".gallery-img");
     setActiveLayout(layout);
   };
 
-  useGSAP(() => {
-    if (!galleryRef.current || !flipStateRef.current) return;
+  // 3. The Flip Animation & WebGL Handoff
+  useGSAP(
+    () => {
+      if (!galleryRef.current || !flipStateRef.current) return;
 
-    let staggerValue = activeLayout === "layout-2-gallery" ? 0 : 0.025;
+      let staggerValue = activeLayout === "layout-2-gallery" ? 0 : 0.025;
 
-    Flip.from(flipStateRef.current, {
-      duration: 1.5,
-      ease: "hop",
-      stagger: staggerValue,
-      absolute: true,
-      scale: true,
-    });
+      // Execute the layout transition
+      Flip.from(flipStateRef.current, {
+        duration: 1.5,
+        ease: "hop",
+        stagger: staggerValue,
+        absolute: true,
+        scale: true,
+      });
 
-    flipStateRef.current = null;
+      // Clear the state so it doesn't re-run accidentally
+      flipStateRef.current = null;
 
-    // Fade out DOM images if Layout 3 (WebGL Slider) is active
-    gsap.to(".gallery-img", {
-      opacity: activeLayout === "layout-3-gallery" ? 0 : 1,
-      duration: 0.5,
-      ease: "power2.inOut",
-    });
-  }, [activeLayout]);
+      // --- THE SEAMLESS HANDOFF ---
+      const isWebGLActive = activeLayout === "layout-3-gallery";
+
+      // Wait until 1.3 seconds so WebGL is solid underneath, then disappear rapidly
+      gsap.to(".gallery-img", {
+        autoAlpha: isWebGLActive ? 0 : 1,
+        duration: 0.2, // Quick fade to prevent ghosting
+        delay: isWebGLActive ? 1.3 : 0,
+        ease: "power2.inOut",
+      });
+
+      // Remove pointer events from the gallery container so the scroll wheel
+      // passes straight through to the WebGL Canvas underneath
+      gsap.set(galleryRef.current, {
+        pointerEvents: isWebGLActive ? "none" : "auto",
+        delay: isWebGLActive ? 1.3 : 0,
+      });
+    },
+    [activeLayout], // Re-run whenever Zustand state changes
+  );
 
   return (
     <div
       ref={containerRef}
       className="absolute inset-0 w-full h-full z-10 pointer-events-none"
     >
+      {/* Streamlined, Centered Top Navigation */}
       <nav className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] flex space-x-8 md:space-x-16 font-sans mix-blend-difference pointer-events-none">
         {["layout-1-gallery", "layout-2-gallery", "layout-3-gallery"].map(
           (layout, i) => (
@@ -85,6 +108,7 @@ export default function FlipGallery() {
         )}
       </nav>
 
+      {/* Gallery Grid Container */}
       <div className="w-full h-full relative pointer-events-auto pt-24">
         <div
           ref={galleryRef}

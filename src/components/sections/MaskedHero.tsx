@@ -124,7 +124,7 @@ export default function MaskedHero() {
           className="absolute w-[110%] h-[110%] -top-[5%] -left-[5%]"
         >
           <Image
-            src="/assets/images/image_004.webp"
+            src="/assets/images/image_015.webp"
             alt="Wide Mask"
             fill
             priority

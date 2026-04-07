@@ -2,217 +2,110 @@
 @tailwind components;
 @tailwind utilities;
 
-/* -------------------------------------------------------------------------- */
-/* BASE CONFIGURATION                                                         */
-/* -------------------------------------------------------------------------- */
-
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+@layer base {
+  body {
+    font-family: "Inter", sans-serif;
+    overflow: hidden;
+    background-color: #e5e5e5;
   }
 }
 
-body {
-  font-family: var(--font-neue), sans-serif;
+/* =========================================
+   LAYOUT 4: EDITORIAL MINIMAP OVERLAYS 
+   ========================================= */
+
+/* --- OVERLAY NAVIGATION (Always Visible) --- */
+.editorial-nav {
+  position: fixed;
+  top: 2.5rem;
+  right: 3rem;
+  z-index: 9999;
+  display: flex;
+  gap: 2rem;
+  pointer-events: auto;
 }
 
-/* -------------------------------------------------------------------------- */
-/* LENIS SMOOTH SCROLL (From your previous setup)                             */
-/* -------------------------------------------------------------------------- */
-
-html.lenis,
-html.lenis body {
-  height: auto;
+.editorial-nav button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  transition: color 0.3s ease;
+  padding: 0;
 }
 
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
+.editorial-nav button.active,
+.editorial-nav button:hover {
+  color: #000;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
 }
 
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-smooth iframe {
-  pointer-events: none;
-}
-
-/* -------------------------------------------------------------------------- */
-/* GSAP FLIP GALLERY LAYOUTS                                                  */
-/* -------------------------------------------------------------------------- */
-
-/* Base Gallery State */
-.gallery {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* ----------------- LAYOUT 1: SCATTERED ----------------- */
-.gallery.layout-1-gallery {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform: translateX(0%);
-}
-
-.gallery.layout-1-gallery .gallery-img {
-  position: absolute;
-  width: 100px;
-  height: 125px;
-}
-
-/* Row 1 */
-.gallery.layout-1-gallery #img1,
-.gallery.layout-1-gallery #img2,
-.gallery.layout-1-gallery #img3,
-.gallery.layout-1-gallery #img4 {
-  top: 0%;
-}
-
-/* Row 2 */
-.gallery.layout-1-gallery #img5,
-.gallery.layout-1-gallery #img6,
-.gallery.layout-1-gallery #img7,
-.gallery.layout-1-gallery #img8 {
-  top: 25%;
-}
-
-/* Row 3 */
-.gallery.layout-1-gallery #img9,
-.gallery.layout-1-gallery #img10 {
-  top: 50%;
-}
-
-/* Row 4 */
-.gallery.layout-1-gallery #img11,
-.gallery.layout-1-gallery #img12,
-.gallery.layout-1-gallery #img13,
-.gallery.layout-1-gallery #img14 {
-  top: 75%;
-}
-
-/* Column X Coordinates */
-.gallery.layout-1-gallery #img1,
-.gallery.layout-1-gallery #img5,
-.gallery.layout-1-gallery #img11 {
-  left: 2em;
-}
-
-.gallery.layout-1-gallery #img2 {
-  left: 15%;
-}
-.gallery.layout-1-gallery #img6 {
-  left: 25%;
-}
-.gallery.layout-1-gallery #img3,
-.gallery.layout-1-gallery #img9 {
-  left: 45%;
-}
-
-.gallery.layout-1-gallery #img4,
-.gallery.layout-1-gallery #img10,
-.gallery.layout-1-gallery #img12 {
-  left: 65%;
-}
-
-.gallery.layout-1-gallery #img13 {
-  left: 75%;
-}
-.gallery.layout-1-gallery #img7 {
-  right: 15%;
-}
-
-.gallery.layout-1-gallery #img8,
-.gallery.layout-1-gallery #img14 {
-  right: 2em;
-}
-
-/* ----------------- LAYOUT 2: SIDEBAR STACK / WRAP ----------------- */
-.gallery.layout-2-gallery {
+/* --- THE SLEEK MINIMAP BAR --- */
+.lens-bar-container {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: 85vw;
+  height: 40vh;
+  background-color: #ffffff;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  padding: 2.5rem 3rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+
+.lens-bar-container.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Typography columns inside the white bar */
+.lens-text-col {
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
-  align-content: center;
-  justify-content: center;
-  gap: 1.5rem;
-  /* Constrain height to force the images into multiple vertical columns */
-  height: 70vh;
-  width: 90vw;
+  justify-content: space-between;
+  color: #000;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  z-index: 30;
 }
 
-.gallery.layout-2-gallery .gallery-img {
-  position: relative !important;
-  left: 0 !important;
-  top: 0 !important;
-  right: auto !important;
-  width: 85px !important;
-  height: 115px !important;
-  margin-bottom: 0 !important;
-  display: block;
+.lens-text-col.right {
+  text-align: right;
 }
 
-/* ----------------- LAYOUT 3: FOCUSED CORNER ----------------- */
-.gallery.layout-3-gallery {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform: translateX(0%);
-}
-
-.gallery.layout-3-gallery .gallery-img {
+/* Close Button Placed Below the Bar */
+.btn-close {
   position: absolute;
-  top: 4em;
-  right: 4em;
-  width: 300px;
-  height: 400px;
+  bottom: -3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  transition: color 0.3s ease;
 }
 
-/* ----------------- LAYOUT 2: VERTICAL WRAP (SHIFTED RIGHT) ----------------- */
-.gallery.layout-2-gallery {
-  position: absolute;
-  top: 50%;
-  /* Shifted from center to the right 60% mark to balance the left-aligned text */
-  left: 65%;
-  transform: translate(-50%, -50%);
-
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  align-content: center;
-  justify-content: center;
-  gap: 1.5vw;
-
-  /* Constrain height to force the 14 images into columns */
-  height: 80vh;
-  width: 50vw;
-}
-
-.gallery.layout-2-gallery .gallery-img {
-  position: relative !important;
-  left: 0 !important;
-  top: 0 !important;
-  right: auto !important;
-  width: 85px !important;
-  height: 115px !important;
-  margin-bottom: 0 !important;
-  display: block;
+.btn-close:hover {
+  color: #000;
 }
