@@ -68,7 +68,7 @@ export default function OverlayUI() {
         ))}
       </nav>
 
-      {/* --- MINIMAP TYPOGRAPHY (Locks to the Z-10 Mask exactly) --- */}
+      {/* --- MINIMAP TYPOGRAPHY CONTAINER --- */}
       <div
         style={{
           position: "absolute",
@@ -84,23 +84,23 @@ export default function OverlayUI() {
           pointerEvents: "none",
         }}
       >
-        {/* Left Column */}
-        <div
-          style={{
-            width: "32.5%",
-            padding: "2.5rem 3rem",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            color: "#000",
-            fontSize: "11px",
-            fontWeight: 800,
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-          }}
-        >
-          <span>{(activeProject + 1).toString().padStart(2, "0")}</span>
-          <span>{currentData.category}</span>
+        {/* Left Column wrapper */}
+        <div style={{ width: "32.5%", padding: "2.5rem 3rem" }}>
+          {/* THE ANIMATED KEY TRICK */}
+          <div
+            key={`left-${activeProject}`}
+            className="animate-text-cycle"
+            style={{
+              color: "#000",
+              fontSize: "11px",
+              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+            }}
+          >
+            <span>{(activeProject + 1).toString().padStart(2, "0")}</span>
+            <span>{currentData.category}</span>
+          </div>
         </div>
 
         {/* Center Void / Close Button */}
@@ -127,24 +127,24 @@ export default function OverlayUI() {
           </button>
         </div>
 
-        {/* Right Column */}
-        <div
-          style={{
-            width: "32.5%",
-            padding: "2.5rem 3rem",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            textAlign: "right",
-            color: "#000",
-            fontSize: "11px",
-            fontWeight: 800,
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-          }}
-        >
-          <span>{currentData.title}</span>
-          <span>{currentData.year}</span>
+        {/* Right Column wrapper */}
+        <div style={{ width: "32.5%", padding: "2.5rem 3rem" }}>
+          {/* THE ANIMATED KEY TRICK */}
+          <div
+            key={`right-${activeProject}`}
+            className="animate-text-cycle"
+            style={{
+              textAlign: "right",
+              color: "#000",
+              fontSize: "11px",
+              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+            }}
+          >
+            <span>{currentData.title}</span>
+            <span>{currentData.year}</span>
+          </div>
         </div>
       </div>
     </div>

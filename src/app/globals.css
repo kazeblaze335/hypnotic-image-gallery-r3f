@@ -221,3 +221,24 @@
     flex-direction: column;
   }
 }
+
+/* --- TEXT CYCLE ANIMATION --- */
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-text-cycle {
+  animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* Ensures the flex layout of the text columns isn't broken */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
