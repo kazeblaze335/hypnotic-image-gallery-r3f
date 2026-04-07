@@ -18,9 +18,26 @@ export default function OverlayUI() {
   const isLensMode = activeLayout === "layout-4-lens";
 
   return (
-    <div style={{ width: "100%", height: "100%", pointerEvents: "none" }}>
-      {/* --- TOP RIGHT MENU (Always Visible) --- */}
-      <nav className="editorial-nav">
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        pointerEvents: "none",
+      }}
+    >
+      {/* --- TOP RIGHT MENU --- */}
+      <nav
+        style={{
+          position: "fixed",
+          top: "2.5rem",
+          right: "3rem",
+          zIndex: 9999,
+          display: "flex",
+          gap: "2rem",
+          pointerEvents: "auto",
+        }}
+      >
         {[
           "layout-1-gallery",
           "layout-2-gallery",
@@ -30,34 +47,105 @@ export default function OverlayUI() {
           <button
             key={layout}
             onClick={() => setActiveLayout(layout)}
-            className={activeLayout === layout ? "active" : ""}
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              color: activeLayout === layout ? "#000" : "rgba(0, 0, 0, 0.4)",
+              textDecoration: activeLayout === layout ? "underline" : "none",
+              textUnderlineOffset: "6px",
+              textDecorationThickness: "2px",
+              fontSize: "11px",
+              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.15em",
+              transition: "color 0.3s ease",
+            }}
           >
             Layout {i + 1}
           </button>
         ))}
       </nav>
 
-      {/* --- THE SLEEK MINIMAP BAR --- */}
-      <div className={`lens-bar-container ${isLensMode ? "active" : ""}`}>
-        {/* Left Typography */}
-        <div className="lens-text-col">
+      {/* --- MINIMAP TYPOGRAPHY (Locks to the Z-10 Mask exactly) --- */}
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "85vw",
+          height: "40vh",
+          display: "flex",
+          justifyContent: "space-between",
+          opacity: isLensMode ? 1 : 0,
+          transition: "opacity 0.7s ease",
+          pointerEvents: "none",
+        }}
+      >
+        {/* Left Column */}
+        <div
+          style={{
+            width: "32.5%",
+            padding: "2.5rem 3rem",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            color: "#000",
+            fontSize: "11px",
+            fontWeight: 800,
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+          }}
+        >
           <span>{(activeProject + 1).toString().padStart(2, "0")}</span>
           <span>{currentData.category}</span>
         </div>
 
-        {/* Right Typography */}
-        <div className="lens-text-col right">
+        {/* Center Void / Close Button */}
+        <div style={{ width: "35%", position: "relative" }}>
+          <button
+            onClick={() => setActiveLayout(previousLayout)}
+            style={{
+              position: "absolute",
+              bottom: "-3rem",
+              left: "50%",
+              transform: "translateX(-50%)",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              pointerEvents: isLensMode ? "auto" : "none",
+              color: "rgba(0, 0, 0, 0.5)",
+              fontSize: "10px",
+              fontWeight: "bold",
+              textTransform: "uppercase",
+              letterSpacing: "0.3em",
+            }}
+          >
+            [ Close View ]
+          </button>
+        </div>
+
+        {/* Right Column */}
+        <div
+          style={{
+            width: "32.5%",
+            padding: "2.5rem 3rem",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            textAlign: "right",
+            color: "#000",
+            fontSize: "11px",
+            fontWeight: 800,
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+          }}
+        >
           <span>{currentData.title}</span>
           <span>{currentData.year}</span>
         </div>
-
-        {/* Close Button */}
-        <button
-          className="btn-close"
-          onClick={() => setActiveLayout(previousLayout)}
-        >
-          [ Close View ]
-        </button>
       </div>
     </div>
   );

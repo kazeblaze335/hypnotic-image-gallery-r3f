@@ -54,7 +54,6 @@ export const LayoutEngines = {
     };
   },
 
-  // LAYOUT 4: Pure Vertical Reel scaled for the CSS lens bar
   getLayout4: (
     i: number,
     currentY: number,
@@ -72,7 +71,7 @@ export const LayoutEngines = {
       scale: 0.4, // Elegant scaling for the 40vh white bar
       rotX: 0,
       rotY: 0,
-      isMasked: 1.0, // Turns on Shader Clipping!
+      isMasked: 1.0,
     };
   },
 };

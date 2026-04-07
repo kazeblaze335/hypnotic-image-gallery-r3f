@@ -12,17 +12,27 @@ export default function DetailBackground() {
 
   return (
     <div
-      className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-700 ease-in-out z-0 ${isLensMode ? "opacity-100" : "opacity-0"}`}
+      className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${isLensMode ? "opacity-100" : "opacity-0"}`}
     >
-      {/* LAYER 1: Full-screen blurred background */}
-      <img
-        src={images[activeProject]}
-        alt="Background Blur"
-        className="absolute inset-0 w-full h-full object-cover scale-110 blur-[40px] brightness-75 transition-all duration-700"
-      />
+      {images.map((src, i) => {
+        let offset = "100%";
+        if (i === activeProject) offset = "0%";
+        else if (i < activeProject) offset = "-100%";
 
-      {/* LAYER 2: The solid white horizontal box */}
-      <div className="absolute top-1/2 left-0 w-full h-[45vh] md:h-[50vh] -translate-y-1/2 bg-white z-10 shadow-2xl" />
+        if (activeProject === 0 && i === images.length - 1) offset = "-100%";
+        if (activeProject === images.length - 1 && i === 0) offset = "100%";
+
+        return (
+          <img
+            key={src}
+            src={src}
+            alt="Background"
+            // Rendered at native clarity without blur filters
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out"
+            style={{ transform: `translateY(${offset})` }}
+          />
+        );
+      })}
     </div>
   );
 }

@@ -6,7 +6,6 @@ import { useTexture, shaderMaterial } from "@react-three/drei";
 import { useStore } from "@/store/useStore";
 import { LayoutEngines } from "./LayoutEngines";
 
-// --- SHADER WITH PERFECT Y-CLIPPING ---
 const FogSliderMaterial = shaderMaterial(
   {
     uTexture: new THREE.Texture(),
@@ -30,10 +29,7 @@ const FogSliderMaterial = shaderMaterial(
     uniform sampler2D uTexture; uniform float uDistortion; uniform float uIsMasked; uniform float uMaskBoundsY;
     varying vec2 vUv; varying vec3 vWorldPos;
     void main() {
-      // THE MASK: Perfectly slices the top and bottom of the mesh to fit the 40vh CSS bar
-      if (uIsMasked > 0.5 && abs(vWorldPos.y) > uMaskBoundsY) {
-        discard; 
-      }
+      if (uIsMasked > 0.5 && abs(vWorldPos.y) > uMaskBoundsY) { discard; }
       vec2 uv = vUv; uv.x += sin(uv.y * 10.0) * uDistortion * 0.03;
       gl_FragColor = texture2D(uTexture, uv);
     }
@@ -59,7 +55,6 @@ export default function UnifiedScene() {
     currentGridY = useRef(0),
     velocityGridY = useRef(0);
 
-  // Bulletproof infinite tracker
   const rawScrollIndex = useRef(0);
   const lastScrollTime = useRef(Date.now());
 
@@ -95,7 +90,6 @@ export default function UnifiedScene() {
       e.preventDefault();
       const now = Date.now();
 
-      // --- DEBOUNCED CLUNKY MAGNETIC SCROLL ---
       if (activeLayout === "layout-4-lens") {
         if (now - lastScrollTime.current > 750) {
           if (e.deltaY > 15) {
@@ -106,7 +100,6 @@ export default function UnifiedScene() {
             lastScrollTime.current = now;
           }
 
-          // JS Positive Modulo: Prevents data from freezing when scrolling backward!
           const safeIndex =
             ((rawScrollIndex.current % images.length) + images.length) %
             images.length;
@@ -225,7 +218,7 @@ export default function UnifiedScene() {
           0.1,
         );
 
-        // Exact viewport Y-clipping! 20% from center equals exactly 40vh (Matches the CSS bar height)
+        // Exact viewport Y-clipping (20% from center equals 40vh)
         mesh.material.uMaskBoundsY = viewport.height * 0.2;
       }
     });
